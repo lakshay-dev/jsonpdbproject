@@ -1,0 +1,205 @@
+<!DOCTYPE html>
+<!--
+To change this license header, choose License Headers in Project Properties.
+To change this template file, choose Tools | Templates
+and open the template in the editor.
+-->
+<html lang="en">
+    <body style="background-color:purple;">
+<head>
+<title>project</title>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="stylesheet"
+href="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/css/bootstrap.min.css">
+<script
+src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+<script
+src="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/js/bootstrap.min.js"></script>
+<script
+src="https://login2explore.com/jpdb/resources/js/0.0.4/jpdb-commons.js"></script>
+
+</head>
+<body>
+<div class="container">
+<h2>fill the form </h2>
+<form id="empForm" method="post">
+<div class="form-group">
+<span><label for="empId">Employee ID:</label> <label id="empIdMsg">
+</label></span>
+<input type="text" class="form-control" name="empId" id="empId"
+placeholder="Enter Employee ID" required>
+</div>
+<div class="form-group">
+<label for="empName">Employee Name:</label>
+<input type="text" class="form-control" id="empName"
+placeholder="Enter Employee Name" name="empName">
+</div>
+<div class="form-group">
+<label for="empEmail">Email:</label>
+<input type="email" class="form-control" id="empEmail"
+placeholder="Enter Employee Email" name="empEmail">
+</div>
+    
+<input type="button" class="btn btn-primary" id="empSave" value="Save"
+onclick="saveEmployee();">
+<div class="form-group">
+<input type="text" class="form-control" name="empId" id="giveinput"
+placeholder="place the emp id to fetch data for that emp" required>
+
+<input type="button" class="btn btn-primary" id="empSave" value="retrive data"
+onclick="getresulltbyid();">
+<input type="text" class="form-control" name="empId" id="giveinput2"
+placeholder="place the empid which you want to delete" required>
+<input type="button" class="btn btn-primary" id="empdelete" value="delete data"
+onclick="deleteid();">
+<input type="button" class="btn btn-primary" id="forclose" value="close window"
+onclick="window.open('', '_self', ''); window.close();">
+
+</div>
+<div>
+
+</div>
+</form>
+
+</div>
+   <script>
+//$("#empId").focus();
+function validateAndGetFormData() {
+var empIdVar = $("#empId").val();
+if (empIdVar === "") {
+alert("Employee ID Required Value");
+$("#empId").focus();
+return "";
+}
+var empNameVar = $("#empName").val();
+if (empNameVar === "") {
+alert("Employee Name is Required Value");
+$("#empName").focus();
+return "";
+}
+var empEmailVar = $("#empEmail").val();
+if (empEmailVar === "") {
+alert("Employee Email is Required Value");
+$("#empEmail").focus();
+return "";
+}
+var jsonStrObj = {
+empId: empIdVar,
+empName: empNameVar,
+empEmail: empEmailVar,
+};
+return JSON.stringify(jsonStrObj);
+}
+// This method is used to create PUT Json request.
+function createPUTRequest(connToken, jsonObj, dbName, relName) {
+var putRequest = "{\n"
++ "\"token\" : \""
++ connToken
++ "\","
++ "\"dbName\": \""
++ dbName
++ "\",\n" + "\"cmd\" : \"PUT\",\n"
++ "\"rel\" : \""
++ relName + "\","
++ "\"jsonStr\": \n"
++ jsonObj
++ "\n"
++ "}";
+return putRequest;
+}
+
+function resetForm() {
+$("#empId").val("");
+$("#empName").val("");
+$("#empEmail").val("");
+$("#empId").focus();
+}
+function saveEmployee() {
+var jsonStr = validateAndGetFormData();
+if (jsonStr === "") {
+return;
+}
+var putReqStr = createPUTRequest("90938909|-31949290961257427|90940956",
+jsonStr, "Studen", "Student-Re");
+alert(putReqStr);
+jQuery.ajaxSetup({async: false});
+var resultObj = executeCommandAtGivenBaseUrl(putReqStr,
+"http://api.login2explore.com:5577", "/api/iml");
+alert(JSON.stringify(resultObj));
+jQuery.ajaxSetup({async: true});
+resetForm();
+}
+
+var apiBaseUrl = "http://api.login2explore.com:5577"; 
+function getresulltbyid(){
+    var x = $("#giveinput").val();
+      var dataObj = {
+           empId: x
+                };
+                
+   var jsonObj = JSON.stringify(dataObj);
+    $.ajaxSetup({async: false});
+
+          
+                var getFindRecordReq = createFIND_RECORDRequest("90938909|-31949290961257427|90940956", "Studen", "Student-Re", jsonObj);
+
+                
+                var respFindRecordJson = executeCommand(getFindRecordReq,  "/api/irl");
+                var lvStatus = respFindRecordJson.status;
+                var lvMessage = respFindRecordJson.message;
+                 
+               
+                $.ajaxSetup({async: true});
+
+                   var lvData = respFindRecordJson.data;
+                   if(lvData.length===0){
+                       alert("given id is not avail try another one");
+                   }
+                   
+                var dataRecordArray = lvData[0];
+                
+              
+               
+                var resultRow = dataRecordArray.record;
+ 
+               
+                $.each(resultRow, function (index, row) {
+                    
+                   
+                        $('#' + index + '').val(row);
+                       
+                    
+                });
+                return false;
+               
+}
+
+
+
+function deleteid() {
+   
+                $.ajaxSetup({async: false});
+
+                 var reqId=  $("#giveinput2").val();
+                 alert(reqId);
+                var getRemoveRequest = createREMOVERecordRequest("90938909|-31949290961257427|90940956", "Studen","Student-Re" , reqId);
+
+                alert(getRemoveRequest);
+                var respJsonRecord = executeCommand(getRemoveRequest, "/api/iml");
+                alert(JSON.stringify(respJsonRecord));
+               
+               $("#giveinput2").val("");
+               
+              
+                $.ajaxSetup({async: true});
+            }
+           
+   
+            
+</script>
+
+
+    </body>
+</html>
+
